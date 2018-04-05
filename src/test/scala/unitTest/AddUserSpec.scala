@@ -1,6 +1,5 @@
 package unitTest
 
-import scala.collection.mutable._
 import org.scalatest._
 
 object DAO {

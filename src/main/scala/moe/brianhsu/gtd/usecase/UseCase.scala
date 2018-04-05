@@ -7,7 +7,7 @@ trait UseCase[T] {
 }
 
 trait BaseUseCase[T] extends UseCase[T] {
-  override def validate: Option[ValidationError] = None
+  override def validate(): Option[ValidationError] = None
   override def journal: Option[Journal] = None
 }
 

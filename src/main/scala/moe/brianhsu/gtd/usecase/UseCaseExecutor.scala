@@ -7,7 +7,7 @@ abstract class UseCaseExecutor {
     Try {
       useCase.validate().foreach { error => throw error }
       val result = useCase.execute()
-      useCase.journal.foreach(appendJournal _)
+      useCase.journal.foreach(appendJournal)
       result
     }
   }

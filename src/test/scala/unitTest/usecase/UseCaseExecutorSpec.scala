@@ -4,7 +4,7 @@ import moe.brianhsu.gtd.usecase._
 import unitTest.mock._
 
 import org.scalatest._
-import scala.util.{Try, Success, Failure}
+import scala.util.{Success, Failure}
 
 
 class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
@@ -17,7 +17,7 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
       None
     }
 
-    override def execute() = {}
+    override def execute(): Unit = {}
   }
 
   "UseCaseExecutor" when {
@@ -30,7 +30,7 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
 
         executor.execute(useCase)
 
-        useCase.isValidationCalled shouldBe (true)
+        useCase.isValidationCalled shouldBe true
       }
 
       "return an Failure[ValidationError] if validation function retunring non-empty Option" in { executor =>
@@ -51,7 +51,7 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
         class SomeException extends Exception
 
         val useCase = new DoNothing {
-          override def execute() = {
+          override def execute(): Unit= {
             throw new SomeException
           }
         }
@@ -64,7 +64,7 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
 
       "return Success if validation is success and no exception in execute function" in { executor =>
         val useCase = new BaseUseCase[Int] {
-          def execute = 100
+          def execute() = 100
         }
       
         val result = executor.execute(useCase) 
@@ -110,7 +110,7 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
   type FixtureParam = UseCaseExecutorMock
 
 
-  override def withFixture(test: OneArgTest) = {
+  override def withFixture(test: OneArgTest): Outcome = {
     val executor = new UseCaseExecutorMock
     test(executor)
   }
