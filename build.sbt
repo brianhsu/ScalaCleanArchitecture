@@ -2,7 +2,7 @@ organization := "moe.brianhsu.gtd"
 
 scalaVersion := "2.12.5"
 
-scalacOptions := Seq("-deprecation")
+scalacOptions := Seq("-deprecation", "-feature")
 
 version := "0.1.0-SNAPSHOT"
 
