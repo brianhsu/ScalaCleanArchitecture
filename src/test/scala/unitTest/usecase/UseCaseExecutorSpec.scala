@@ -1,6 +1,8 @@
 package unitTest.usecase
 
 import moe.brianhsu.gtd.usecase._
+import moe.brianhsu.gtd.validator._
+
 import unitTest.mock._
 
 import org.scalatest._
@@ -36,7 +38,7 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
       "return an Failure[ValidationError] if validation function retunring non-empty Option" in { executor =>
         val useCase = new DoNothing {
           override def validate: Option[ValidationError] = {
-            Some(new ValidationError{})
+            Some(new ValidationError(null))
           }
         }
 

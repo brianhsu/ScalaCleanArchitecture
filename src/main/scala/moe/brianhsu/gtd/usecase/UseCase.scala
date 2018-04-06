@@ -1,5 +1,7 @@
 package moe.brianhsu.gtd.usecase
 
+import moe.brianhsu.gtd.validator._
+
 trait UseCase[T] {
   def execute(): T
   def validate(): Option[ValidationError]
