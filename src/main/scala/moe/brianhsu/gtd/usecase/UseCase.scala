@@ -1,5 +1,6 @@
 package moe.brianhsu.gtd.usecase
 
+import moe.brianhsu.gtd.journal.Journal
 import moe.brianhsu.gtd.validator._
 
 trait UseCase[T] {

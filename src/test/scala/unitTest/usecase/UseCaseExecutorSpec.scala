@@ -1,12 +1,12 @@
 package unitTest.usecase
 
+import moe.brianhsu.gtd.journal.Journal
 import moe.brianhsu.gtd.usecase._
 import moe.brianhsu.gtd.validator._
-
-import unitTest.mock._
-
+import unitTest.stub._
 import org.scalatest._
-import scala.util.{Success, Failure}
+
+import scala.util.{Failure, Success}
 
 
 class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
@@ -109,11 +109,11 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
 
   }
 
-  type FixtureParam = UseCaseExecutorMock
+  type FixtureParam = UseCaseExecutorLogToMemory
 
 
   override def withFixture(test: OneArgTest): Outcome = {
-    val executor = new UseCaseExecutorMock
+    val executor = new UseCaseExecutorLogToMemory
     test(executor)
   }
 }

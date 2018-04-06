@@ -1,84 +1,21 @@
-package unitTest
+package unitTest.usecase
 
+import java.time._
+import java.util.UUID
+
+import moe.brianhsu.gtd.entity._
+import moe.brianhsu.gtd.journal.InsertLog
+import moe.brianhsu.gtd.repo.memory.InMemoryUser
+import moe.brianhsu.gtd.usecase._
 import moe.brianhsu.gtd.validator._
 import org.scalatest._
-
-object DAO {
-  trait UserRepo {
-    def findUser(email: String): Option[User]
-  }
-}
-
-trait DAO {
-  def userRepo: DAO.UserRepo
-}
-
-class FakeUserRepo extends DAO.UserRepo {
-  var user: List[User] = Nil
-  override def findUser(email: String): Option[User] = user.filter(_.email == email).headOption
-}
-
-class DAOMock extends DAO {
-  override val userRepo = new FakeUserRepo
-}
-
-import java.util.UUID
-import moe.brianhsu.gtd.usecase._
-
-case class User(uuid: UUID, email: String, name: String)
-
-trait UUIDGenerator {
-  def randomUUID: UUID
-}
-
-class FixedUUIDGenerator extends UUIDGenerator {
-  private var uuid = UUID.fromString("ec0509a2-bb89-41a4-a8bb-b56816f61890")
-  def randomUUID = uuid
-  def setUUID(uuid: String) = {
-    this.uuid = UUID.fromString(uuid)
-  }
-}
-
-object CreateUser {
-  case class Request(email: String, name: String)
-}
-
-
-
-class CreateUser(request: CreateUser.Request)(implicit val dao: DAO, implicit val uuidGenerator: UUIDGenerator) extends UseCase[User] {
-
-  val uuid = uuidGenerator.randomUUID
-
-  override def execute() = ???
-  override def journal = ???
-  override def validate(): Option[ValidationError] = {
-
-    import ParamValidator._
-    val checkEmailDuplicate = (email: String) => dao.userRepo.findUser(email).map(s => IsDuplicated)
-
-    checkParams(
-      forField("email", request.email, NonEmptyString, EmailValidator, checkEmailDuplicate),
-      forField("name", request.name, ParamValidator.NonEmptyString)
-    )
-  }
-
-
-}
+import unitTest.stub._
 
 class CreateUserSpec extends fixture.WordSpec with Matchers with OptionValues {
 
   "CreateUser" when {
 
-    "initialize" should { 
-      "setup UUID accoriding to UUID Generator" in { fixture =>
-        val generatedUUID = fixture.uuidGenerator.randomUUID
-        val createUser = fixture.makeCreateUser(CreateUser.Request(email = "user@example.com", "UserName"))
-
-        createUser.uuid shouldBe generatedUUID
-      }
-    }
-
-    "validation" should {
+    "validate request" should {
       "return an exception if email is empty" in { fixture =>
         val request = CreateUser.Request(email = "", name = "UserName")
         val createUser = fixture.makeCreateUser(request)
@@ -129,7 +66,8 @@ class CreateUserSpec extends fixture.WordSpec with Matchers with OptionValues {
       "reutrn an exception if email is duplicate" in { fixture =>
         val existUserEmail = "user@example.com"
         val existUserUUID = UUID.fromString("1773a57c-004e-4f04-95fd-c9c9a7de4f92")
-        fixture.userRepo.user ::= User(existUserUUID, existUserEmail, "UserName")
+
+        fixture.userRepo.insert(User(existUserUUID, existUserEmail, "UserName"))
 
         val request = CreateUser.Request(existUserEmail, "AnotherUser")
         val createUser = fixture.makeCreateUser(request)
@@ -150,40 +88,60 @@ class CreateUserSpec extends fixture.WordSpec with Matchers with OptionValues {
 
     }
 
-    "execute the operation" should {
-      "set createTime / updateTime correctly" in { fixture =>
-        pending
-      }
+    "generate journal" should {
+      "return correct journal object" in { fixture =>
+        val (request, expectedUser) = generateRequest(fixture)
+        val createUser = fixture.makeCreateUser(request)
+        val journal = createUser.journal
+        val nowTime = fixture.currentTime.currentTime
 
-      "generate journal object" in { fixture =>
-        pending
+        journal.value shouldBe InsertLog("user", expectedUser.uuid, expectedUser, nowTime)
+      }
+    }
+
+    "execute the operation" should {
+      "have correct uuid, name, email and set createTime / updateTime to current time" in { fixture =>
+        val (request, expectedUser) = generateRequest(fixture)
+
+        val createUser = fixture.makeCreateUser(request)
+        val createdUser = createUser.execute()
+
+        createdUser shouldBe expectedUser
       }
 
       "call DAO object to save" in { fixture =>
-        pending
+
+        val (request, expectedUser) = generateRequest(fixture)
+
+        val createUser = fixture.makeCreateUser(request)
+        val createdUser = createUser.execute()
+
+        fixture.userRepo.find(createdUser.email) shouldBe Some(expectedUser)
       }
     }
   }
 
-  class TestFixture {
-    implicit val dao = new DAOMock
-    implicit val uuidGenerator = new FixedUUIDGenerator
+  private def generateRequest(fixture: TestFixture): (CreateUser.Request, User) = {
+    val generatedUUID = fixture.uuidGenerator.randomUUID
+    val nowTime = LocalDateTime.of(2018, 10, 1, 10, 11, 11)
+    val request = CreateUser.Request("user@example.com", "UserName")
+    val expectedUser = User(generatedUUID, "user@example.com", "UserName", nowTime, nowTime)
 
-    def userRepo = dao.userRepo.asInstanceOf[FakeUserRepo]
+    fixture.currentTime.setTime(nowTime)
 
-    def makeCreateUser(request: CreateUser.Request) = {
-      import dao._
-      import uuidGenerator._
-      new CreateUser(request)
-    }
-
+    (request, expectedUser)
   }
 
   type FixtureParam = TestFixture
 
-  override def withFixture(test: OneArgTest) = {
-    val fixture = new TestFixture
-    test(fixture)
+  override def withFixture(test: OneArgTest) = test(new TestFixture)
+
+  class TestFixture {
+    implicit val uuidGenerator = new FixedUUIDGenerator
+    implicit val currentTime = new FakeCurrentTime
+    implicit val userRepo = new InMemoryUser
+
+    def makeCreateUser(request: CreateUser.Request) = new CreateUser(request)
   }
 
 }

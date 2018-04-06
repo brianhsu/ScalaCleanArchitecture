@@ -1,5 +1,7 @@
 package moe.brianhsu.gtd.usecase
 
+import moe.brianhsu.gtd.journal.Journal
+
 import scala.util.Try
 
 abstract class UseCaseExecutor {

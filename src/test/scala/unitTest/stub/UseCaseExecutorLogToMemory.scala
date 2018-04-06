@@ -1,8 +1,9 @@
-package unitTest.mock
+package unitTest.stub
 
+import moe.brianhsu.gtd.journal.Journal
 import moe.brianhsu.gtd.usecase._
 
-class UseCaseExecutorMock extends UseCaseExecutor {
+class UseCaseExecutorLogToMemory extends UseCaseExecutor {
   var journals: List[Journal] = Nil
 
   def appendJournal(journal: Journal) {
