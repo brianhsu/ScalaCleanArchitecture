@@ -7,4 +7,5 @@ import moe.brianhsu.gtd.entity.Stuff
 trait InboxRepo {
   def find(uuid: UUID): Option[Stuff]
   def insert(stuff: Stuff): Unit
+  def update(uuid: UUID, stuff: Stuff): Unit
 }

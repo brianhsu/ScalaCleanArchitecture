@@ -10,5 +10,5 @@ class InMemoryUser extends UserRepo {
     userList ::= user
   }
 
-  override def find(email: String): Option[User] = userList.filter(_.email == email).headOption
+  override def find(email: String): Option[User] = userList.find(_.email == email)
 }

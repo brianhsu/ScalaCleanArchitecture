@@ -6,6 +6,9 @@ trait ErrorDescription
 case object IsRequired extends ErrorDescription
 case object IsDuplicated extends ErrorDescription
 case object IsMalformed extends ErrorDescription
+case object NotFound extends ErrorDescription
+case object AccessDenied extends ErrorDescription
 
 case class FieldError(name: String, message: ErrorDescription) extends ErrorDescription
 case class ParamError(errors: List[FieldError]) extends ErrorDescription
+
