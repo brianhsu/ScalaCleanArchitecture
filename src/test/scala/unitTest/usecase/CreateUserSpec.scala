@@ -93,7 +93,7 @@ class CreateUserSpec extends fixture.WordSpec with Matchers with OptionValues {
         val (request, expectedUser) = generateRequest(fixture)
         val createUser = fixture.makeCreateUser(request)
         val journal = createUser.journal
-        val nowTime = fixture.currentTime.currentTime
+        val nowTime = fixture.dataGenerator.currentTime.time
 
         journal.value shouldBe InsertLog("user", expectedUser.uuid, expectedUser, nowTime)
       }
@@ -122,12 +122,12 @@ class CreateUserSpec extends fixture.WordSpec with Matchers with OptionValues {
   }
 
   private def generateRequest(fixture: TestFixture): (CreateUser.Request, User) = {
-    val generatedUUID = fixture.uuidGenerator.randomUUID
+    val generatedUUID = fixture.dataGenerator.randomUUID.uuid
     val nowTime = LocalDateTime.of(2018, 10, 1, 10, 11, 11)
     val request = CreateUser.Request("user@example.com", "UserName")
     val expectedUser = User(generatedUUID, "user@example.com", "UserName", nowTime, nowTime)
 
-    fixture.currentTime.setTime(nowTime)
+    fixture.dataGenerator.currentTime.setTime(nowTime)
 
     (request, expectedUser)
   }
@@ -137,8 +137,7 @@ class CreateUserSpec extends fixture.WordSpec with Matchers with OptionValues {
   override def withFixture(test: OneArgTest) = test(new TestFixture)
 
   class TestFixture {
-    implicit val uuidGenerator = new FixedUUIDGenerator
-    implicit val currentTime = new FakeCurrentTime
+    implicit val dataGenerator = new FixedDataGenerator
     implicit val userRepo = new InMemoryUser
 
     def makeCreateUser(request: CreateUser.Request) = new CreateUser(request)

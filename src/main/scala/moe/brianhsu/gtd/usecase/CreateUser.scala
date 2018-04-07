@@ -12,11 +12,10 @@ object CreateUser {
 
 
 class CreateUser(request: CreateUser.Request)
-                (implicit val userRepo: UserRepo, implicit val uuidGenerator: UUIDGenerator, 
-                 implicit val currentTimeGenerator: CurrentTimeGenerator) extends UseCase[User] {
+                (implicit val userRepo: UserRepo, implicit val generator: DynamicDataGenerator) extends UseCase[User] {
 
-  private lazy val uuid = uuidGenerator.randomUUID
-  private lazy val nowTime = currentTimeGenerator.currentTime
+  private lazy val uuid = generator.randomUUID.uuid
+  private lazy val nowTime = generator.currentTime.time
   private lazy val user = User(uuid, request.email, request.name, nowTime, nowTime)
 
   override def execute(): User = {
