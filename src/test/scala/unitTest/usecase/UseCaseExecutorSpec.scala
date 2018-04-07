@@ -1,12 +1,12 @@
 package unitTest.usecase
 
-import moe.brianhsu.gtd.journal.Journal
+import moe.brianhsu.gtd.journal._
 import moe.brianhsu.gtd.usecase._
 import moe.brianhsu.gtd.validator._
 import unitTest.stub._
 import org.scalatest._
 
-import scala.util.{Failure, Success}
+import scala.util._
 
 
 class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
@@ -14,7 +14,7 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
   class DoNothing extends BaseUseCase[Unit] {
     var isValidationCalled: Boolean = false
 
-    override def validate: Option[ValidationError] = {
+    override def validate(): Option[ValidationError] = {
       this.isValidationCalled = true
       None
     }
@@ -24,7 +24,7 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
 
   "UseCaseExecutor" when {
 
-    "excuting use case" should {
+    "executing use case" should {
 
       "call validation function before execute" in { executor =>
 
@@ -35,9 +35,9 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
         useCase.isValidationCalled shouldBe true
       }
 
-      "return an Failure[ValidationError] if validation function retunring non-empty Option" in { executor =>
+      "return an Failure[ValidationError] if validation function returning non-empty Option" in { executor =>
         val useCase = new DoNothing {
-          override def validate: Option[ValidationError] = {
+          override def validate(): Option[ValidationError] = {
             Some(new ValidationError(null))
           }
         }
@@ -78,7 +78,7 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
 
     "appending journal to system" should {
 
-      "do nothing if jounral is not provided" in { executor =>
+      "do nothing if journal is not provided" in { executor =>
 
         val useCase = new DoNothing
 
@@ -88,22 +88,19 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
       }
 
       "save journal to system if there is journal entry for the use case" in { executor =>
-        
-        val useCaseJournal1 = new Journal {}
-        val useCaseJournal2 = new Journal {}
 
         val useCase1 = new DoNothing {
-          override def journal = Some(useCaseJournal1)
+          override def journal = Some(DoNothing)
         }
 
         val useCase2 = new DoNothing {
-          override def journal = Some(useCaseJournal2)
+          override def journal = Some(DoNothing)
         }
 
         executor.execute(useCase1)
         executor.execute(useCase2)
 
-        executor.journals shouldBe List(useCaseJournal2, useCaseJournal1)
+        executor.journals shouldBe List(DoNothing, DoNothing)
       }
     }
 
