@@ -74,7 +74,7 @@ class MoveToTrashSpec extends fixture.WordSpec with Matchers with OptionValues {
       }
     }
 
-    "journaling" should {
+    "create journal" should {
       "return an update journal log entry" in { fixture =>
 
         val updateTime = LocalDateTime.parse("2018-10-11T13:00:00")

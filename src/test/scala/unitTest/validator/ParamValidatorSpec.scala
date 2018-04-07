@@ -1,6 +1,5 @@
 package unitTest.validator
 
-import moe.brianhsu.gtd.usecase._
 import moe.brianhsu.gtd.validator._
 
 import org.scalatest._
@@ -15,8 +14,8 @@ class ParamValidatorSpec extends WordSpec with Matchers with OptionValues with E
   object IntLessThen5 extends ErrorDescription
   object IntLessThen4 extends ErrorDescription
 
-  val shouldBe5Chars: Validation[String] = (x: String) => if (x.size != 5) Some(StringNot5) else None
-  val shouldBe4Chars: Validation[String] = (x: String) => if (x.size != 4) Some(StringNot4) else None
+  val shouldBe5Chars: Validation[String] = (x: String) => if (x.length != 5) Some(StringNot5) else None
+  val shouldBe4Chars: Validation[String] = (x: String) => if (x.length != 4) Some(StringNot4) else None
   val shouldLargeThen5: Validation[Int] = (x: Int) => if (x < 5) Some(IntLessThen5) else None
   val shouldLargeThen4: Validation[Int] = (x: Int) => if (x < 4) Some(IntLessThen4) else None
 

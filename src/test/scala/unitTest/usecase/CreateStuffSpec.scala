@@ -65,7 +65,7 @@ class CreateStuffSpec extends fixture.WordSpec with Matchers with OptionValues {
       }
     }
 
-    "journaling" should {
+    "create journal" should {
       "return correct journal log entry" in { fixture =>
         val (request, expectedStuff) = fixture.makeRequest(fixture)
         val createStuff = fixture.makeCreateStuff(request)

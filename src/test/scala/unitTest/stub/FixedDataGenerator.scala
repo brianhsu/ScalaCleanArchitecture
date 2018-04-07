@@ -11,7 +11,8 @@ class FixedDataGenerator extends DynamicDataGenerator {
   override val currentTime = new FixedTimeGenerator
 
   class FixedTimeGenerator extends CurrentTimeGenerator {
-    private var currentTime: LocalDateTime = null
+
+    private var currentTime: LocalDateTime = _
 
     override def time: LocalDateTime = currentTime
 
@@ -25,9 +26,9 @@ class FixedDataGenerator extends DynamicDataGenerator {
 
     private var currentUUID = UUID.fromString("ec0509a2-bb89-41a4-a8bb-b56816f61890")
 
-    override def uuid = currentUUID
+    override def uuid: UUID = currentUUID
 
-    def setUUID(uuid: String) = {
+    def setUUID(uuid: String): Unit = {
       this.currentUUID = UUID.fromString(uuid)
     }
   }

@@ -63,7 +63,7 @@ class CreateUserSpec extends fixture.WordSpec with Matchers with OptionValues {
 
       }
 
-      "reutrn an exception if email is duplicate" in { fixture =>
+      "return an exception if email is duplicate" in { fixture =>
         val existUserEmail = "user@example.com"
         val existUserUUID = UUID.fromString("1773a57c-004e-4f04-95fd-c9c9a7de4f92")
 
@@ -137,8 +137,8 @@ class CreateUserSpec extends fixture.WordSpec with Matchers with OptionValues {
   override def withFixture(test: OneArgTest) = test(new TestFixture)
 
   class TestFixture {
-    implicit val dataGenerator = new FixedDataGenerator
-    implicit val userRepo = new InMemoryUser
+    implicit val dataGenerator: FixedDataGenerator = new FixedDataGenerator
+    implicit val userRepo: InMemoryUser = new InMemoryUser
 
     def makeCreateUser(request: CreateUser.Request) = new CreateUser(request)
   }

@@ -9,7 +9,7 @@ object ParamValidator {
     val errors: List[FieldError] = validationRequest.flatMap(f => f()).toList
     errors match {
       case Nil => None
-      case xs  => Some(new ValidationError(ParamError(errors)))
+      case _   => Some(new ValidationError(ParamError(errors)))
     }
   }
 
@@ -30,14 +30,14 @@ object ParamValidator {
       """(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"""
     ).r
   
-    def apply(email: String) = 
+    def apply(email: String): Option[ErrorDescription] =
       Option(email)
-        .filter(e => !emailRegex.findFirstMatchIn(e).isDefined)
-        .map(s => IsMalformed)
+        .filter(e => emailRegex.findFirstMatchIn(e).isEmpty)
+        .map(_ => IsMalformed)
   }
 
   object NonEmptyString extends Validation[String] {
-    def apply(value: String) = {
+    def apply(value: String): Option[ErrorDescription] = {
       value match {
         case null => Some(IsRequired)
         case s if s.trim.isEmpty => Some(IsRequired)
