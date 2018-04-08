@@ -5,6 +5,7 @@ import java.util.UUID
 
 import moe.brianhsu.gtd.entity._
 import moe.brianhsu.gtd.journal.InsertLog
+import moe.brianhsu.gtd.repo.UserRepo
 import moe.brianhsu.gtd.repo.memory.InMemoryUser
 import moe.brianhsu.gtd.usecase._
 import moe.brianhsu.gtd.validator._
@@ -67,7 +68,7 @@ class CreateUserSpec extends fixture.WordSpec with Matchers with OptionValues {
         val existUserEmail = "user@example.com"
         val existUserUUID = UUID.fromString("1773a57c-004e-4f04-95fd-c9c9a7de4f92")
 
-        fixture.userRepo.insert(User(existUserUUID, existUserEmail, "UserName"))
+        fixture.userRepo.write.insert(User(existUserUUID, existUserEmail, "UserName"))
 
         val request = CreateUser.Request(existUserEmail, "AnotherUser")
         val createUser = fixture.makeCreateUser(request)
@@ -116,7 +117,7 @@ class CreateUserSpec extends fixture.WordSpec with Matchers with OptionValues {
         val createUser = fixture.makeCreateUser(request)
         val createdUser = createUser.execute()
 
-        fixture.userRepo.find(createdUser.email) shouldBe Some(expectedUser)
+        fixture.userRepo.read.find(createdUser.email) shouldBe Some(expectedUser)
       }
     }
   }
@@ -138,7 +139,7 @@ class CreateUserSpec extends fixture.WordSpec with Matchers with OptionValues {
 
   class TestFixture {
     implicit val dataGenerator: FixedDataGenerator = new FixedDataGenerator
-    implicit val userRepo: InMemoryUser = new InMemoryUser
+    implicit val userRepo: UserRepo = InMemoryUser.makeInMemoryUser
 
     def makeCreateUser(request: CreateUser.Request) = new CreateUser(request)
   }

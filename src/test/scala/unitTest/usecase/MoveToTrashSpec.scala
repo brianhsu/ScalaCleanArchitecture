@@ -7,6 +7,7 @@ import java.time._
 import java.util.UUID
 
 import moe.brianhsu.gtd.journal.UpdateLog
+import moe.brianhsu.gtd.repo.InboxRepo
 import moe.brianhsu.gtd.repo.memory.InMemoryInboxRepo
 import org.scalatest._
 import unitTest.stub._
@@ -80,7 +81,7 @@ class MoveToTrashSpec extends fixture.WordSpec with Matchers with OptionValues {
 
         moveToTrash.execute()
         
-        val stuffInDB = fixture.inboxRepo.find(theStuffUUID).value
+        val stuffInDB = fixture.inboxRepo.read.find(theStuffUUID).value
 
         stuffInDB.isTrash shouldBe true
         stuffInDB.createTime shouldBe fixture.createTime
@@ -106,12 +107,12 @@ class MoveToTrashSpec extends fixture.WordSpec with Matchers with OptionValues {
 
   protected class TestFixture {
     implicit val generator: FixedDataGenerator = new FixedDataGenerator
-    implicit val inboxRepo: InMemoryInboxRepo = new InMemoryInboxRepo
+    implicit val inboxRepo: InboxRepo = InMemoryInboxRepo.makeInMemoryInbox
     
     val createTime: LocalDateTime = LocalDateTime.parse("2018-01-01T10:00:00")
     val stuff = Stuff(theStuffUUID, LoggedInUser.owner.uuid, "Title", "Description", createTime, createTime)
 
-    inboxRepo.insert(stuff)
+    inboxRepo.write.insert(stuff)
 
     def makeMoveToTrash(loggedInUser: User, stuffUUID: UUID): MoveToTrash = new MoveToTrash(loggedInUser, stuffUUID)
     def makeMoveToTrash(timestamp: LocalDateTime): MoveToTrash = {

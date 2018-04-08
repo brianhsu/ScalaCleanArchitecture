@@ -19,7 +19,7 @@ class CreateUser(request: CreateUser.Request)
   private lazy val user = User(uuid, request.email, request.name, nowTime, nowTime)
 
   override def execute(): User = {
-    userRepo.insert(user)
+    userRepo.write.insert(user)
     user
   }
 
@@ -29,7 +29,7 @@ class CreateUser(request: CreateUser.Request)
 
     import ParamValidator._
 
-    val isEmailDuplicated = (email: String) => userRepo.find(email).map(_ => IsDuplicated)
+    val isEmailDuplicated = (email: String) => userRepo.read.find(email).map(_ => IsDuplicated)
 
     checkParams(
       forField("email", request.email, NonEmptyString, EmailValidator, isEmailDuplicated),

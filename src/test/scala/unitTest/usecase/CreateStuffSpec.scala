@@ -7,6 +7,7 @@ import moe.brianhsu.gtd.journal._
 import java.time._
 import java.util.UUID
 
+import moe.brianhsu.gtd.repo.InboxRepo
 import moe.brianhsu.gtd.repo.memory.InMemoryInboxRepo
 import org.scalatest._
 import unitTest.stub._
@@ -61,7 +62,7 @@ class CreateStuffSpec extends fixture.WordSpec with Matchers with OptionValues {
         val createStuff = fixture.makeCreateStuff(request)
         val createdStuff = createStuff.execute() 
         
-        fixture.inboxRepo.find(createdStuff.uuid) shouldBe Some(expectedStuff)
+        fixture.inboxRepo.read.find(createdStuff.uuid) shouldBe Some(expectedStuff)
       }
     }
 
@@ -80,7 +81,7 @@ class CreateStuffSpec extends fixture.WordSpec with Matchers with OptionValues {
 
   protected class TestFixture {
     implicit val generator: FixedDataGenerator = new FixedDataGenerator
-    implicit val inboxRepo: InMemoryInboxRepo = new InMemoryInboxRepo
+    implicit val inboxRepo: InboxRepo = InMemoryInboxRepo.makeInMemoryInbox
 
     def makeCreateStuff(request: CreateStuff.Request) = new CreateStuff(request)
 

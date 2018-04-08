@@ -14,13 +14,13 @@ class MoveToTrash(loggedInUser: User, stuffUUID: UUID)
 
   private val updateTime = generator.currentTime.time
   private lazy val updatedStuff = {
-    inboxRepo.find(stuffUUID)
+    inboxRepo.read.find(stuffUUID)
       .get
       .copy(isTrash = true, updateTime = this.updateTime)
   }
 
   def execute(): Stuff = {
-    inboxRepo.update(stuffUUID, updatedStuff)
+    inboxRepo.write.update(stuffUUID, updatedStuff)
     updatedStuff
   }
 
@@ -28,8 +28,8 @@ class MoveToTrash(loggedInUser: User, stuffUUID: UUID)
   def validate(): Option[ValidationError] = {
     import ParamValidator._
 
-    def isStuffExists(stuffUUID: UUID) = if (inboxRepo.find(stuffUUID).isDefined) None else Some(NotFound)
-    def isUserMatched(stuffUUID: UUID)(loggedInUser: User) = inboxRepo.find(stuffUUID).filter(_.userUUID != loggedInUser.uuid).map(_ => AccessDenied)
+    def isStuffExists(stuffUUID: UUID) = if (inboxRepo.read.find(stuffUUID).isDefined) None else Some(NotFound)
+    def isUserMatched(stuffUUID: UUID)(loggedInUser: User) = inboxRepo.read.find(stuffUUID).filter(_.userUUID != loggedInUser.uuid).map(_ => AccessDenied)
 
     checkParams(
       forField("uuid", stuffUUID, isStuffExists),

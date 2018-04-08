@@ -29,7 +29,7 @@ class CreateStuff(request: CreateStuff.Request)
   }
 
   override def execute(): Stuff = {
-    inboxRepo.insert(stuff)
+    inboxRepo.write.insert(stuff)
     stuff
   }
 
