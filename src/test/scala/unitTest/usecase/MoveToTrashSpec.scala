@@ -13,17 +13,31 @@ import unitTest.stub._
 
 class MoveToTrashSpec extends fixture.WordSpec with Matchers with OptionValues {
 
-  private val theUserUUID = UUID.fromString("2a53d868-0b7c-4058-b4fe-b727eb24da6f")
-  private val theStuffUUID = UUID.fromString("7a632665-46bf-4766-8404-c191a2637632")
+  object LoggedInUser {
 
-  private val nonExistUserUUID = UUID.fromString("e7fa1077-3fe2-4e23-ac28-fc837eef313d")
-  private val nonExistUUID = UUID.fromString("bdc5a146-b5de-4969-93ca-6d43f0d98197")
+    val owner = User(
+      UUID.fromString("2a53d868-0b7c-4058-b4fe-b727eb24da6f"),
+      "owner@example.com", "UserName"
+    )
+
+    val other = User(
+      UUID.fromString("bdc5a146-b5de-4969-93ca-6d43f0d98197"),
+      "guest@example.com", "Guest"
+    )
+  }
+  private val theStuffUUID = UUID.fromString("7a632665-46bf-4766-8404-c191a2637632")
+  private val nonExistUUID = UUID.fromString("12345678-90ab-cdef-1234-567890abcdef")
+
+  private val theUser = User(
+    UUID.fromString("2a53d868-0b7c-4058-b4fe-b727eb24da6f"),
+    "user@example.com", "UserName"
+  )
 
   "MoveToTrash" when {
     "validate request" should {
 
       "return an ParamError when UUID is not found" in { fixture =>
-        val moveToTrash = fixture.makeMoveToTrash(theUserUUID, nonExistUUID)
+        val moveToTrash = fixture.makeMoveToTrash(LoggedInUser.owner, nonExistUUID)
         val error = moveToTrash.validate().value.error
 
         error shouldBe ParamError(List(FieldError("uuid", NotFound)))
@@ -31,14 +45,14 @@ class MoveToTrashSpec extends fixture.WordSpec with Matchers with OptionValues {
 
       "return an ParamError when stuff is not match with user UUID" in { fixture =>
 
-        val moveToTrash = fixture.makeMoveToTrash(nonExistUserUUID, theStuffUUID)
+        val moveToTrash = fixture.makeMoveToTrash(LoggedInUser.other, theStuffUUID)
         val error = moveToTrash.validate().value.error
 
-        error shouldBe ParamError(List(FieldError("userUUID", AccessDenied)))
+        error shouldBe ParamError(List(FieldError("user", AccessDenied)))
       }
 
       "return None when everything is OK" in { fixture =>
-        val moveToTrash = fixture.makeMoveToTrash(theUserUUID, theStuffUUID)
+        val moveToTrash = fixture.makeMoveToTrash(LoggedInUser.owner, theStuffUUID)
         val error = moveToTrash.validate()
 
         error shouldBe None
@@ -95,14 +109,14 @@ class MoveToTrashSpec extends fixture.WordSpec with Matchers with OptionValues {
     implicit val inboxRepo: InMemoryInboxRepo = new InMemoryInboxRepo
     
     val createTime: LocalDateTime = LocalDateTime.parse("2018-01-01T10:00:00")
-    val stuff = Stuff(theStuffUUID, theUserUUID, "Title", "Description", createTime, createTime)
+    val stuff = Stuff(theStuffUUID, LoggedInUser.owner.uuid, "Title", "Description", createTime, createTime)
 
     inboxRepo.insert(stuff)
 
-    def makeMoveToTrash(userUUID: UUID, stuffUUID: UUID): MoveToTrash = new MoveToTrash(userUUID, stuffUUID)
+    def makeMoveToTrash(loggedInUser: User, stuffUUID: UUID): MoveToTrash = new MoveToTrash(loggedInUser, stuffUUID)
     def makeMoveToTrash(timestamp: LocalDateTime): MoveToTrash = {
       generator.currentTime.setTime(timestamp)
-      makeMoveToTrash(theUserUUID, theStuffUUID)
+      makeMoveToTrash(LoggedInUser.owner, theStuffUUID)
     }
 
   }

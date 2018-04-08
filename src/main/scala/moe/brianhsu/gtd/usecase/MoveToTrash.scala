@@ -2,13 +2,13 @@ package moe.brianhsu.gtd.usecase
 
 import java.util.UUID
 
-import moe.brianhsu.gtd.entity.Stuff
+import moe.brianhsu.gtd.entity._
 import moe.brianhsu.gtd.repo._
 import moe.brianhsu.gtd.generator._
 import moe.brianhsu.gtd.journal._
 import moe.brianhsu.gtd.validator._
 
-class MoveToTrash(userUUID: UUID, stuffUUID: UUID)
+class MoveToTrash(loggedInUser: User, stuffUUID: UUID)
                  (implicit private val inboxRepo: InboxRepo, 
                   implicit private val generator: DynamicDataGenerator) extends UseCase[Stuff] {
 
@@ -29,11 +29,11 @@ class MoveToTrash(userUUID: UUID, stuffUUID: UUID)
     import ParamValidator._
 
     def isStuffExists(stuffUUID: UUID) = if (inboxRepo.find(stuffUUID).isDefined) None else Some(NotFound)
-    def isUserMatched(stuffUUID: UUID)(userUUID: UUID) = inboxRepo.find(stuffUUID).filter(_.userUUID != userUUID).map(_ => AccessDenied)
+    def isUserMatched(stuffUUID: UUID)(loggedInUser: User) = inboxRepo.find(stuffUUID).filter(_.userUUID != loggedInUser.uuid).map(_ => AccessDenied)
 
     checkParams(
       forField("uuid", stuffUUID, isStuffExists),
-      forField("userUUID", userUUID, isUserMatched(stuffUUID))
+      forField("user", loggedInUser, isUserMatched(stuffUUID))
     )
   }
 
