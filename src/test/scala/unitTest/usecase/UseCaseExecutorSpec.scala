@@ -26,17 +26,15 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
 
     "executing use case" should {
 
-      "call validation function before execute" in { fixture =>
-        val FixtureTestParam(executor, presenter) = fixture
+      "call validation function before execute" in { executor =>
         val useCase = new DoNothing
 
-        executor.execute(useCase)(presenter)
+        executor.execute(useCase){_ => }
 
         useCase.isValidationCalled shouldBe true
       }
 
-      "return an Failure[ValidationError] if validation function returning non-empty Option" in { fixture =>
-        val FixtureTestParam(executor, presenter) = fixture
+      "return an Failure[ValidationError] if validation function returning non-empty Option" in { executor =>
 
         val useCase = new DoNothing {
           override def validate(): Option[ValidationError] = {
@@ -44,15 +42,12 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
           }
         }
 
-        executor.execute(useCase)(presenter)
-
-        val result = presenter.getValue
+        val result = executor.execute(useCase){r => r}
         result.isFailure shouldBe true
         result.asInstanceOf[Failure[_]].exception shouldBe a[ValidationError]
       }
 
-      "return an Failure[Exception] if exception is thrown in execute function" in { fixture =>
-        val FixtureTestParam(executor, presenter) = fixture
+      "return an Failure[Exception] if exception is thrown in execute function" in { executor =>
 
         class SomeException extends Exception
 
@@ -62,59 +57,41 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
           }
         }
 
-        executor.execute(useCase)(presenter)
-
-        val result = presenter.getValue
+        val result = executor.execute(useCase){r => r}
         result.asInstanceOf[Failure[_]].exception shouldBe a[SomeException]
       }
 
-      "call presenter" in { fixture =>
+      "call presenter" in { executor =>
 
-        val FixtureTestParam(executor, presenter) = fixture
         val useCase = new DoNothing
 
-        executor.execute(useCase)(presenter)
+        val isCalled = executor.execute(useCase){r => true}
 
-        presenter.isCalled shouldBe true
+        isCalled shouldBe true
       }
 
-      "return Success if validation is success and no exception in execute function" in { fixture =>
-
-        val FixtureTestParam(executor, _) = fixture
+      "return Success if validation is success and no exception in execute function" in { executor =>
 
         val useCase = new BaseUseCase[Int] {
           def execute() = 100
         }
 
-        var isCalled = false
-        var useCaseResult: Try[Int] = Failure(new NoSuchElementException)
-
-        executor.execute(useCase) { result =>
-          isCalled = true
-          useCaseResult = result
-        }
-
-        isCalled shouldBe true
-        useCaseResult shouldBe Success(100)
+        val result = executor.execute(useCase) { r => r }
+        result shouldBe Success(100)
       }
-
     }
 
     "appending journal to system" should {
 
-      "do nothing if journal is not provided" in { fixture =>
-
-        val FixtureTestParam(executor, presenter) = fixture
+      "do nothing if journal is not provided" in { executor =>
         val useCase = new DoNothing
 
-        executor.execute(useCase)(presenter)
+        val result = executor.execute(useCase) { r => r }
 
         executor.journals shouldBe Nil
       }
 
-      "save journal to system if there is journal entry for the use case" in { fixture =>
-
-        val FixtureTestParam(executor, presenter) = fixture
+      "save journal to system if there is journal entry for the use case" in { executor =>
 
         val useCase1 = new DoNothing {
           override def journal = Some(DoNothing)
@@ -124,8 +101,8 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
           override def journal = Some(DoNothing)
         }
 
-        executor.execute(useCase1)(presenter)
-        executor.execute(useCase2)(presenter)
+        executor.execute(useCase1) { r => r }
+        executor.execute(useCase2) { r => r }
 
         executor.journals shouldBe List(DoNothing, DoNothing)
       }
@@ -133,14 +110,10 @@ class UseCaseExecutorSpec extends fixture.WordSpec with Matchers {
 
   }
 
-  type FixtureParam = FixtureTestParam
-
-  case class FixtureTestParam(executor: UseCaseExecutorLogToMemory, presenter: LogValuePresenter[Unit])
+  type FixtureParam = UseCaseExecutorLogToMemory
 
   override def withFixture(test: OneArgTest): Outcome = {
     val executor = new UseCaseExecutorLogToMemory
-    val presenter = new LogValuePresenter[Unit]
-    val param = new FixtureParam(executor, presenter)
-    test(param)
+    test(executor)
   }
 }
