@@ -1,11 +1,12 @@
-package moe.brianhsu.gtd.usecase
+package moe.brianhsu.gtd.usecase.inbox
 
 import java.util.UUID
 
 import moe.brianhsu.gtd.entity._
-import moe.brianhsu.gtd.repo._
 import moe.brianhsu.gtd.generator._
 import moe.brianhsu.gtd.journal._
+import moe.brianhsu.gtd.repo._
+import moe.brianhsu.gtd.usecase.UseCase
 import moe.brianhsu.gtd.validator._
 
 class MoveToTrash(loggedInUser: User, stuffUUID: UUID)

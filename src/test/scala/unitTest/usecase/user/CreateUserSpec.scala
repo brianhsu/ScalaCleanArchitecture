@@ -1,4 +1,4 @@
-package unitTest.usecase
+package unitTest.usecase.user
 
 import java.time._
 import java.util.UUID
@@ -7,7 +7,7 @@ import moe.brianhsu.gtd.entity._
 import moe.brianhsu.gtd.journal.InsertLog
 import moe.brianhsu.gtd.repo.UserRepo
 import moe.brianhsu.gtd.repo.memory.InMemoryUser
-import moe.brianhsu.gtd.usecase._
+import moe.brianhsu.gtd.usecase.user.CreateUser
 import moe.brianhsu.gtd.validator._
 import org.scalatest._
 import unitTest.stub._

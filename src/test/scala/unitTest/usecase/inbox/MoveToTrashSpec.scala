@@ -1,14 +1,14 @@
-package unitTest.usecase
+package unitTest.usecase.inbox
 
-import moe.brianhsu.gtd.usecase._
-import moe.brianhsu.gtd.entity._
-import moe.brianhsu.gtd.validator._
 import java.time._
 import java.util.UUID
 
+import moe.brianhsu.gtd.entity._
 import moe.brianhsu.gtd.journal.UpdateLog
 import moe.brianhsu.gtd.repo.InboxRepo
 import moe.brianhsu.gtd.repo.memory.InMemoryInboxRepo
+import moe.brianhsu.gtd.usecase.inbox.MoveToTrash
+import moe.brianhsu.gtd.validator._
 import org.scalatest._
 import unitTest.stub._
 

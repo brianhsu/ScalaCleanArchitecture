@@ -1,9 +1,10 @@
-package moe.brianhsu.gtd.usecase
+package moe.brianhsu.gtd.usecase.user
 
 import moe.brianhsu.gtd.entity.User
 import moe.brianhsu.gtd.generator._
 import moe.brianhsu.gtd.journal.InsertLog
 import moe.brianhsu.gtd.repo.UserRepo
+import moe.brianhsu.gtd.usecase._
 import moe.brianhsu.gtd.validator._
 
 object CreateUser {

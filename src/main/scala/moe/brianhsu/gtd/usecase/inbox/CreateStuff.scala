@@ -1,4 +1,4 @@
-package moe.brianhsu.gtd.usecase
+package moe.brianhsu.gtd.usecase.inbox
 
 import java.util.UUID
 
@@ -6,6 +6,7 @@ import moe.brianhsu.gtd.entity.Stuff
 import moe.brianhsu.gtd.generator.DynamicDataGenerator
 import moe.brianhsu.gtd.journal.InsertLog
 import moe.brianhsu.gtd.repo.InboxRepo
+import moe.brianhsu.gtd.usecase._
 import moe.brianhsu.gtd.validator._
 
 object CreateStuff {
